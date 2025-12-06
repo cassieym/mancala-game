@@ -30,7 +30,7 @@ import java.awt.event.MouseEvent;
 @SuppressWarnings("serial")
 public class GameBoard extends JPanel {
 
-    private TicTacToe ttt; // model for the game
+    private Mancala ttt; // model for the game
     private JLabel status; // current status text
 
     // Game constants
@@ -48,7 +48,7 @@ public class GameBoard extends JPanel {
         // keyboard focus, key events are handled by its key listener.
         setFocusable(true);
 
-        ttt = new TicTacToe(); // initializes model for the game
+        ttt = new Mancala(); // initializes model for the game
         status = statusInit; // initializes the status JLabel
 
         /*
@@ -127,7 +127,7 @@ public class GameBoard extends JPanel {
         // Draws X's and O's
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                int state = ttt.getCell(j, i);
+                int state = ttt.getPitCount(j, i);
                 if (state == 1) {
                     g.drawOval(30 + 100 * j, 30 + 100 * i, 40, 40);
                 } else if (state == 2) {
