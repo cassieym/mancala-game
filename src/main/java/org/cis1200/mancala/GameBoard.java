@@ -30,12 +30,12 @@ import java.awt.event.MouseEvent;
 @SuppressWarnings("serial")
 public class GameBoard extends JPanel {
 
-    private Mancala ttt; // model for the game
+    private Mancala game; // model for the game
     private JLabel status; // current status text
 
     // Game constants
-    public static final int BOARD_WIDTH = 300;
-    public static final int BOARD_HEIGHT = 300;
+    public static final int BOARD_WIDTH = 700;
+    public static final int BOARD_HEIGHT = 200;
 
     /**
      * Initializes the game board.
@@ -48,7 +48,7 @@ public class GameBoard extends JPanel {
         // keyboard focus, key events are handled by its key listener.
         setFocusable(true);
 
-        ttt = new Mancala(); // initializes model for the game
+        game = new Mancala(); // initializes model for the game
         status = statusInit; // initializes the status JLabel
 
         /*
@@ -60,8 +60,14 @@ public class GameBoard extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 Point p = e.getPoint();
 
+                int pitW = BOARD_WIDTH / 7;
+                int pitH = BOARD_HEIGHT / 2;
+
+                int col = p.x / pitW;
+                int row = p.y / pitH;
+
                 // updates the model given the coordinates of the mouseclick
-                ttt.playTurn(p.x / 100, p.y / 100);
+                game.playTurn(row, col);
 
                 updateStatus(); // updates the status JLabel
                 repaint(); // repaints the game board
@@ -73,8 +79,8 @@ public class GameBoard extends JPanel {
      * (Re-)sets the game to its initial state.
      */
     public void reset() {
-        ttt.reset();
-        status.setText("Player 1's Turn");
+        game.reset();
+        status.setText("Player 0's Turn");
         repaint();
 
         // Makes sure this component has keyboard/mouse focus
@@ -85,19 +91,15 @@ public class GameBoard extends JPanel {
      * Updates the JLabel to reflect the current state of the game.
      */
     private void updateStatus() {
-        if (ttt.getCurrentPlayer()) {
-            status.setText("Player 1's Turn");
-        } else {
-            status.setText("Player 2's Turn");
-        }
+        status.setText("Player " + game.getCurrentPlayer() + "'s Turn");
 
-        int winner = ttt.checkWinner();
-        if (winner == 1) {
-            status.setText("Player 1 wins!!!");
-        } else if (winner == 2) {
-            status.setText("Player 2 wins!!!");
-        } else if (winner == 3) {
-            status.setText("It's a tie.");
+        if (game.isGameOver()) {
+            int p0 = game.getStoreCount(0);
+            int p1 = game.getStoreCount(1);
+
+            if (p0 > p1) status.setText("Player 0 wins!");
+            else if (p1 > p0) status.setText("Player 1 wins!");
+            else status.setText("Tie game!");
         }
     }
 
@@ -116,27 +118,32 @@ public class GameBoard extends JPanel {
         super.paintComponent(g);
 
         // Draws board grid
-        int unitWidth = BOARD_WIDTH / 3;
-        int unitHeight = BOARD_HEIGHT / 3;
-
-        g.drawLine(unitWidth, 0, unitWidth, BOARD_HEIGHT);
-        g.drawLine(unitWidth * 2, 0, unitWidth * 2, BOARD_HEIGHT);
-        g.drawLine(0, unitHeight, BOARD_WIDTH, unitHeight);
-        g.drawLine(0, unitHeight * 2, BOARD_WIDTH, unitHeight * 2);
+        int pitW = BOARD_WIDTH / 7;
+        int pitH = BOARD_HEIGHT / 2;
 
         // Draws X's and O's
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                int state = ttt.getPitCount(j, i);
-                if (state == 1) {
-                    g.drawOval(30 + 100 * j, 30 + 100 * i, 40, 40);
-                } else if (state == 2) {
-                    g.drawLine(30 + 100 * j, 30 + 100 * i, 70 + 100 * j, 70 + 100 * i);
-                    g.drawLine(30 + 100 * j, 70 + 100 * i, 70 + 100 * j, 30 + 100 * i);
+        for (int r = 0; r < 2; r++) {
+            for (int c = 0; c < 7; c++) {
+                int x = c * pitW;
+                int y = r * pitH;
+
+                // Pit rectangle
+                g.setColor(Color.BLACK);
+                g.drawRect(x, y, pitW, pitH);
+
+                // Store pits shaded
+                if ((r == 0 && c == 0) || (r == 1 && c == 6)) {
+                    g.setColor(new Color(230,230,255));
+                    g.fillRect(x+1, y+1, pitW-2, pitH-2);
                 }
+
+                // Draw stone count
+                g.setColor(Color.BLACK);
+                int stones = game.getPitCount(r, c);
+                g.drawString(Integer.toString(stones), x + pitW/2, y + pitH/2);
+            }
             }
         }
-    }
 
     /**
      * Returns the size of the game board.
