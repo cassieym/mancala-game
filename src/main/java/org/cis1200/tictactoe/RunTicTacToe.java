@@ -1,4 +1,4 @@
-package org.cis1200.mancala;
+package org.cis1200.tictactoe;
 
 /*
  * CIS 120 HW09 - TicTacToe Demo
@@ -6,8 +6,8 @@ package org.cis1200.mancala;
  * Created by Bayley Tuch, Sabrina Green, and Nicolas Corona in Fall 2020.
  */
 
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /**
  * This class sets up the top-level frame and widgets for the GUI.
@@ -24,59 +24,42 @@ import java.awt.*;
  * handle the rest of the game's view and controller functionality, and
  * it will instantiate a TicTacToe object to serve as the game's model.
  */
-public class RunMancala implements Runnable {
+public class RunTicTacToe implements Runnable {
     public void run() {
         // NOTE: the 'final' keyword denotes immutability even for local variables.
 
         // Top-level frame in which game components live
-        final JFrame frame = new JFrame("Mancala");
-        Rectangle dimensions = frame.getBounds();
-        int h = dimensions.height;
-        int w = dimensions.width;
+        final JFrame frame = new JFrame("TicTacToe");
         frame.setLocation(300, 300);
 
-        // Status Panel
-        final JPanel statusPanel = new JPanel();
-        frame.add(statusPanel, BorderLayout.SOUTH);
+        // Status panel
+        final JPanel status_panel = new JPanel();
+        frame.add(status_panel, BorderLayout.SOUTH);
         final JLabel status = new JLabel("Setting up...");
-        statusPanel.add(status);
+        status_panel.add(status);
 
-        // Game Board
+        // Game board
         final GameBoard board = new GameBoard(status);
         frame.add(board, BorderLayout.CENTER);
 
-        // Control Panel
-        final JPanel controlPanel = new JPanel();
-        frame.add(controlPanel, BorderLayout.NORTH);
+        // Reset button
+        final JPanel control_panel = new JPanel();
+        frame.add(control_panel, BorderLayout.NORTH);
 
-        // LOAD BUTTON
-        final JButton load = new JButton("Load");
-        load.addActionListener(e -> board.load());
-        controlPanel.add(load);
-
-        // SAVE BUTTON
-        final JButton save = new JButton("Save");
-        save.addActionListener(e -> board.save());
-        controlPanel.add(save);
-
-        // UNDO BUTTON
-        final JButton undo = new JButton("Undo");
-        undo.addActionListener(e -> board.undo());
-        controlPanel.add(undo);
-
-        // RESET BUTTON
+        // Note here that when we add an action listener to the reset button, we
+        // define it as an anonymous inner class that is an instance of
+        // ActionListener with its actionPerformed() method overridden. When the
+        // button is pressed, actionPerformed() will be called.
         final JButton reset = new JButton("Reset");
         reset.addActionListener(e -> board.reset());
-        controlPanel.add(reset);
+        control_panel.add(reset);
 
         // Put the frame on the screen
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
-        frame.setMinimumSize(new Dimension(500, 250));
 
         // Start the game
         board.reset();
-
     }
 }
